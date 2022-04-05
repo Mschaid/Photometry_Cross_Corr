@@ -15,3 +15,22 @@ def new_folder(path):
         return print("Directory created")
     else:
        return  print("Directory already exists")
+
+##  function to compile list of files to analyze
+
+def get_data(path, search_for, file_type):
+    list_of_files = []
+    for path, currentDirectory, files in os.walk(path):
+        for file in files:
+            if file.startswith(search_for) and file.endswith(file_type):
+                list_of_files.append(os.path.join(path, file))
+    print("Files collected")
+    return list_of_files
+
+
+#%% function to read hdf5 data
+def read_hdf5(file):
+    read_file = h5py.File(file, 'r')
+    extracted_data = read_file.get('data')
+    arr = np.array(extracted_data)
+    return arr
