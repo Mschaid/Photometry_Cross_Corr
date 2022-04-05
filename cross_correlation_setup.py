@@ -9,15 +9,17 @@ import glob
 
 ##  function to create new folder
 def new_folder(path):
-    new_folder_path = (path + "\\" + path.split("\\")[-1] + "_cross_coor_analysis")
-    if not os.path.exists(new_folder_path):
-        os.mkdir(new_folder_path)
-        return print("Directory created")
+    cross_correlation_analysis_path = (path + "\\" + "cross_correlation_analysis")
+    if not os.path.exists(cross_correlation_analysis_path):
+        os.mkdir(cross_correlation_analysis_path)
+        print("Directory created")
+        return cross_correlation_analysis_path
     else:
-       return  print("Directory already exists")
+        print("Directory already exists")
+        return cross_correlation_analysis_path
+
 
 ##  function to compile list of files to analyze
-
 def get_data(path, search_for, file_type):
     list_of_files = []
     for path, currentDirectory, files in os.walk(path):
@@ -27,10 +29,13 @@ def get_data(path, search_for, file_type):
     print("Files collected")
     return list_of_files
 
-
-#%% function to read hdf5 data
+## function to read hdf5 data
 def read_hdf5(file):
     read_file = h5py.File(file, 'r')
     extracted_data = read_file.get('data')
     arr = np.array(extracted_data)
     return arr
+## function to get mouse ID from guppy output
+def get_id(path):
+    mouse_id = path.split("\\")[-2].split("-")[0]
+    return mouse_id
