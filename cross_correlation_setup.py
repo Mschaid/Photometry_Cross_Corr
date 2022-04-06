@@ -8,15 +8,15 @@ import os
 import glob
 
 ##  function to create new folder
-def new_folder(path):
-    cross_correlation_analysis_path = (path + "\\" + "cross_correlation_analysis")
-    if not os.path.exists(cross_correlation_analysis_path):
-        os.mkdir(cross_correlation_analysis_path)
+def new_folder(path, name):
+    new_folder_path = (path + "\\" + name)
+    if not os.path.exists(new_folder_path):
+        os.mkdir(new_folder_path)
         print("Directory created")
-        return cross_correlation_analysis_path
+        return new_folder_path
     else:
         print("Directory already exists")
-        return cross_correlation_analysis_path
+        return new_folder_path
 
 
 ##  function to compile list of files to analyze
