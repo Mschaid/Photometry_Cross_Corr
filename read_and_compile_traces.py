@@ -32,3 +32,20 @@ print("Compiled data saved as H5 file")
 print("Proceed to next step")
 
 
+df_clean = (pd.read_hdf(compiled_data_path)
+            .transpose()
+            .reset_index()
+            .rename(columns={"index": 'name'})
+            .melt(id_vars = ["name"],ignore_index=False)
+            .dropna()
+                )
+#  for some reason I need to assign columns after closing the previous function chain. it won't work otherwise
+df_clean = (df_clean.assign(time = df_clean['variable'].div(1.071E3),
+                mouse = df_clean['name'].str.split('_', expand=True)[0], #split index column string and assign to mouse and signal
+                signal = df_clean['name'].str.split('_', expand=True)[3])
+            .drop(columns = ['name', 'variable'])
+         )
+## TODO make this faster
+print("data reformatted and cleaned")
+df_clean.to_hdf(cross_correlation_analysis_path + "\\" + "cleaned_compiled_data.h5", key = "data", mode = 'w')
+print('Clean data saved as H5 file')
