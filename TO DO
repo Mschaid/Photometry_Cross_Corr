@@ -1,0 +1,12 @@
+
+1)
+A) Go into each guppy output folder and create new folder called "correlation analysis"
+B) Pull data to cross corr and do analysis
+C) Filter to appropriate time scale and save as new CSV
+
+2) Collect all data for group analysis
+A) go into all coorelation analysis folders and store as csv (this is written already)_
+B) export as new dataframe saved as CSV (H5?)
+
+3) Plot group analysis
+

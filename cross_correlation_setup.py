@@ -1,11 +1,8 @@
 
 import numpy as np
-import pandas as pd
 import h5py
-import matplotlib.pyplot as plt
-from scipy import signal
 import os
-import glob
+
 
 ##  function to create new folder
 def new_folder(path, name):
