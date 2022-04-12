@@ -44,7 +44,7 @@ def get_id(path):
 ## function to pass in dataframe column names to cross correlate
 
 
-def cross_correlate(signal_A, signal_B):
+def df_cross_correlate(signal_A, signal_B):
     corr = signal.correlate(signal_A, signal_B)
     corr /= np.max(corr)
     lag = signal.correlation_lags(len(signal_A), len(signal_B))

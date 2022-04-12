@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import h5py
 import matplotlib.pyplot as plt
-
 import os
 import glob
 import cross_correlation_setup as cc
@@ -34,9 +33,7 @@ for files in data_list:
     arrs_to_analyze = []
     for f in files:
         id = cc.get_id(f)  # get mouse fD from path
-        label = ((os.path.basename(f).split("."))[0]).split("_")[
-            -1
-        ]  #  get label of data - this extracts the last string from guppy output file
+        label = ((os.path.basename(f).split("."))[0]).split("_")[-1]  #  get label of data - this extracts the last string from guppy output file
         k = str(label)  #  create key value name from id and label
         v = cc.read_hdf5(f)  #  read HDF5 file and make it an array (dict value)
         dict_of_data.update({k: v})  #  update dict with key:value pair
@@ -49,15 +46,25 @@ for files in data_list:
 #
 print("Data extracted and saved")
 
-#%%
+print('collecting data to cross correlate')
+files_to_analyze = glob.glob(f'{path_to_folders}\\**\\{new_folder}\\*.csv')
+print('files collected')
 
-df = pd.read_csv(
-    r"R:\Mike\JS_for_MS\F336-210610-153851_output_1\cross_correlation_analysis\F336.csv"
-).dropna()
-# corr = signal.correlate(df['F339_z_score_axon'], df['F339_z_score_cell'])
-# corr /= np.max(corr)
-# lag = signal.correlation_lags(len(df['F339_z_score_axon']), len(df['F339_z_score_cell']))
 
-correlation = cc.cross_correlate(df["cell"], df["axon"])
+Signal_A = 'cell'
+Signal_B = 'axon'
+print(f'computing {Signal_A} vs {Signal_B} cross correlation')
+## for each file read into dataframe and drop nan
+for f in files_to_analyze:
+    df = (pd.read_csv(f)
+          .dropna()
+          )
+## cross correlate signal a to signal b and create new dataframe
+    correlation = cc.df_cross_correlate(df[Signal_A], df[Signal_B])
+    dict_corr = {f'{Signal_A}_VS_{Signal_B}': correlation[0], 'lag_time':correlation[1]}
+    id = (os.path.basename(f)).split('.')[0]
+##  save new dataframe as mousename_A_VS_B.csv
+    df_cor =  pd.DataFrame.from_dict(dict_corr)
+    df_cor.to_csv(f'{os.path.dirname(f)}\\{id}_{Signal_A}_VS_{Signal_B}.csv')
 
-#%%
+print(f'{Signal_A} vs {Signal_B} cross correlation computed and saved')
