@@ -6,6 +6,7 @@ import cross_correlation_setup as cc
 path_to_files = "R:\Mike\JS_for_MS"
 
 # make new folder of analyzed data
+
 cross_correlation_analysis_path = cc.new_folder(path_to_files, name = "cross_corr_analysis")
 # compile files to analyze, set path, name to search for, and file type.
 data_list = cc.get_data(path= path_to_files, search_for="z_score", file_type=".hdf5")
@@ -20,6 +21,7 @@ for i in data_list:
     df = pd.DataFrame(
         dict([(k, pd.Series(v)) for k, v in dict_of_data.items()]) #  convert to dataframe
     )
+
 
 ## save dataframe to h5
 compiled_data_path = cross_correlation_analysis_path + "\\" + "compiled_data.h5"
