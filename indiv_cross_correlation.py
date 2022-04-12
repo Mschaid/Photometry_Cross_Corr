@@ -35,19 +35,19 @@ for files in data_list:
         id = cc.get_id(f)  # get mouse fD from path
         label = ((os.path.basename(f).split("."))[0]).split("_")[-1]  #  get label of data - this extracts the last string from guppy output file
         k = str(label)  #  create key value name from id and label
-        v = cc.read_hdf5(f)  #  read HDF5 file and make it an array (dict value)
+        v = cc.read_hdf5(f,'data')  #  read HDF5 file and make it an array (dict value)
         dict_of_data.update({k: v})  #  update dict with key:value pair
     df = pd.DataFrame(
         dict([(k, pd.Series(v)) for k, v in dict_of_data.items()])
     )  #  convert to dataframe
 
-    df.to_csv(f"{os.path.dirname(f)}\\{new_folder}\\{id}.csv")
+    df.to_hdf(f"{os.path.dirname(f)}\\{new_folder}\\{id}.h5", key='df', mode = 'w')
 
 #
 print("Data extracted and saved")
-
+#%%
 print('collecting data to cross correlate')
-files_to_analyze = glob.glob(f'{path_to_folders}\\**\\{new_folder}\\*.csv')
+files_to_analyze = glob.glob(f'{path_to_folders}\\**\\{new_folder}\\*.h5')
 print('files collected')
 
 
@@ -56,7 +56,7 @@ Signal_B = 'axon'
 print(f'computing {Signal_A} vs {Signal_B} cross correlation')
 ## for each file read into dataframe and drop nan
 for f in files_to_analyze:
-    df = (pd.read_csv(f)
+    df = (pd.read_hdf(f)
           .dropna()
           )
 ## cross correlate signal a to signal b and create new dataframe
@@ -65,6 +65,9 @@ for f in files_to_analyze:
     id = (os.path.basename(f)).split('.')[0]
 ##  save new dataframe as mousename_A_VS_B.csv
     df_cor =  pd.DataFrame.from_dict(dict_corr)
-    df_cor.to_csv(f'{os.path.dirname(f)}\\{id}_{Signal_A}_VS_{Signal_B}.csv')
+    df_cor.to_hdf(f'{os.path.dirname(f)}\\{id}_{Signal_A}_VS_{Signal_B}.h5', key = 'df', mode='w')
 
 print(f'{Signal_A} vs {Signal_B} cross correlation computed and saved')
+
+#%%
+\Mike\JS_for_MS\F338\cross_correlation_analysis\F338_cell_VS_axon.h5")

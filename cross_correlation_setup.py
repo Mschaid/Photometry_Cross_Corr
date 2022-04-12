@@ -28,9 +28,9 @@ def get_data(path, search_for, file_type):
 
 
 ## function to read hdf5 data
-def read_hdf5(file):
+def read_hdf5(file, input):
     read_file = h5py.File(file, "r")
-    extracted_data = read_file.get("data")
+    extracted_data = read_file.get(input)
     arr = np.array(extracted_data)
     return arr
 
