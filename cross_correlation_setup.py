@@ -48,4 +48,5 @@ def df_cross_correlate(signal_A, signal_B):
     corr = signal.correlate(signal_A, signal_B)
     corr /= np.max(corr)
     lag = signal.correlation_lags(len(signal_A), len(signal_B))
-    return (corr, lag)
+    lag_msec = (lag/1.017E2)
+    return (corr, lag_msec)

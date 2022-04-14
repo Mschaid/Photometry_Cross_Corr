@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import glob
 import cross_correlation_setup as cc
+import fnmatch
 
 path_to_folders = r"R:\Mike\JS_for_MS"
 #
@@ -45,14 +46,14 @@ for files in data_list:
 
 #
 print("Data extracted and saved")
-#%%
+
 print('collecting data to cross correlate')
 files_to_analyze = glob.glob(f'{path_to_folders}\\**\\{new_folder}\\*.h5')
 print('files collected')
 
-
-Signal_A = 'cell'
-Signal_B = 'axon'
+#%%
+Signal_A = 'axon'
+Signal_B = 'receptor'
 print(f'computing {Signal_A} vs {Signal_B} cross correlation')
 ## for each file read into dataframe and drop nan
 for f in files_to_analyze:
@@ -61,13 +62,34 @@ for f in files_to_analyze:
           )
 ## cross correlate signal a to signal b and create new dataframe
     correlation = cc.df_cross_correlate(df[Signal_A], df[Signal_B])
-    dict_corr = {f'{Signal_A}_VS_{Signal_B}': correlation[0], 'lag_time':correlation[1]}
+    dict_corr = {f'{Signal_A}VS{Signal_B}': correlation[0], 'lag_time(ms)':correlation[1]}
     id = (os.path.basename(f)).split('.')[0]
 ##  save new dataframe as mousename_A_VS_B.csv
-    df_cor =  pd.DataFrame.from_dict(dict_corr)
-    df_cor.to_hdf(f'{os.path.dirname(f)}\\{id}_{Signal_A}_VS_{Signal_B}.h5', key = 'df', mode='w')
+    df_corr =  pd.DataFrame.from_dict(dict_corr)
+    df_corr = (df_corr
+                .assign(ID =id,
+                        correlation=df_corr.columns[0])
+                .rename(columns = {df_corr.columns[0]: 'co_coef'})
+           )
+
+    df_corr.to_hdf(f'{os.path.dirname(f)}\\{id}_{Signal_A}VS{Signal_B}_.h5', key = 'df', mode='w')
+
 
 print(f'{Signal_A} vs {Signal_B} cross correlation computed and saved')
 
+
+
 #%%
-\Mike\JS_for_MS\F338\cross_correlation_analysis\F338_cell_VS_axon.h5")
+compiled_files = []
+for dirpath, dirs, files in os.walk(path_to_folders):
+  for filename in fnmatch.filter(files, f'*VS*.h5'):
+    compiled_files.append((os.path.join(dirpath, filename)))
+
+for f in compiled_files:
+    df_grp = pd.read_hdf(f)
+    pd.concat([df_grp])
+df_grp.to_hdf(f'{path_to_folders}\\cross_correlation_analysis_compiled_.h5', key='df', mode='w')
+
+print(f'data compiled and saved in {path_to_folders}')
+#%%
+
