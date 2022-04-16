@@ -7,27 +7,23 @@ import glob
 import cross_correlation_setup as cc
 import fnmatch
 
-path_to_folders = r"R:\Mike\JS_for_MS"
+path_to_folders = r"C:\Users\mds8301\Desktop\test_coef\day14"
 #
 ## create new folder in each output folder called analysis
-sub_folders = next(os.walk(os.path.abspath(path_to_folders)))
-
-list_of_folders = []  ## create list of the output folders from the path_to_folders
-for i in sub_folders[1]:
-    folder_path = sub_folders[0] + "\\" + i
-    list_of_folders.append(folder_path)
-print(list_of_folders)
+sub_folders = glob.glob(path_to_folders + '\\**\\*output_*', recursive=True)
 
 ## create new folder in each output folder called 'cross_correlation_analyis - indiv analysis will be stored here
 new_folder = "cross_correlation_analysis"
-for i in list_of_folders:
+for i in sub_folders:
     cc.new_folder(path=i, name="cross_correlation_analysis")
 
 data_list = []  ## list of list containing all files to analyze
-for i in list_of_folders:
+for i in sub_folders:
     files = cc.get_data(path=i, search_for="z_score", file_type=".hdf5")
     data_list.append(files)
-
+for i in data_list:
+    print(i)
+#%%
 ## extract data into dict -> dataframe
 for files in data_list:
     dict_of_data = {}
@@ -44,7 +40,7 @@ for files in data_list:
 
     df.to_hdf(f"{os.path.dirname(f)}\\{new_folder}\\{id}.h5", key='df', mode = 'w')
 
-#
+
 print("Data extracted and saved")
 
 print('collecting data to cross correlate')
@@ -52,6 +48,8 @@ files_to_analyze = glob.glob(f'{path_to_folders}\\**\\{new_folder}\\*.h5')
 print('files collected')
 
 #%%
+
+##for each correlation, change signals to correlate (Signal_A vs Signal_B) and re-run this cell. when finished, move to next cell and run 1 time
 Signal_A = 'axon'
 Signal_B = 'receptor'
 print(f'computing {Signal_A} vs {Signal_B} cross correlation')
@@ -74,22 +72,31 @@ for f in files_to_analyze:
 
     df_corr.to_hdf(f'{os.path.dirname(f)}\\{id}_{Signal_A}VS{Signal_B}_.h5', key = 'df', mode='w')
 
-
 print(f'{Signal_A} vs {Signal_B} cross correlation computed and saved')
 
-
-
 #%%
+##  this cell will compiled all correlation files i with SignalA VS SignalB and save as master file.
 compiled_files = []
 for dirpath, dirs, files in os.walk(path_to_folders):
   for filename in fnmatch.filter(files, f'*VS*.h5'):
     compiled_files.append((os.path.join(dirpath, filename)))
 
 for f in compiled_files:
-    df_grp = pd.read_hdf(f)
-    pd.concat([df_grp])
+    print(f)
+
+all_df = []
+for f in compiled_files:
+    df = pd.read_hdf(f)
+    all_df.append(df)
+df_grp = pd.concat(all_df)
+
+low_time = -10
+high_time = 10
+df_grp = (
+    df_grp.loc[(df_grp['lag_time(ms)']>= low_time) & (df_grp['lag_time(ms)'] <= high_time)]
+)
+
 df_grp.to_hdf(f'{path_to_folders}\\cross_correlation_analysis_compiled_.h5', key='df', mode='w')
 
 print(f'data compiled and saved in {path_to_folders}')
 #%%
-
