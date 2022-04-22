@@ -6,30 +6,37 @@ import os
 import glob
 import cross_correlation_setup as cc
 import fnmatch
+import functools
+import operator
+import itertools
+from scipy import signal
+
 
 path_to_folders = r"C:\Users\mds8301\Desktop\test_coef\day14"
-#
-## create new folder in each output folder called analysis
 sub_folders = glob.glob(path_to_folders + '\\**\\*output_*', recursive=True)
-
-## create new folder in each output folder called 'cross_correlation_analyis - indiv analysis will be stored here
 new_folder = "cross_correlation_analysis"
 for i in sub_folders:
-    cc.new_folder(path=i, name="cross_correlation_analysis")
+    print(i)
+
+## create new folder in each output folder called 'cross_correlation_analyis - indiv analysis will be stored here
+for i in sub_folders:
+    cc.new_folder(path=i, name=new_folder)
+
+
 
 data_list = []  ## list of list containing all files to analyze
 for i in sub_folders:
-    files = cc.get_data(path=i, search_for="z_score", file_type=".hdf5")
+    files = cc.get_data(path=i, search_for="Cuez_score", file_type=".hdf5")
     data_list.append(files)
-for i in data_list:
-    print(i)
+
 #%%
 ## extract data into dict -> dataframe
+##  TODO performace warning:
 for files in data_list:
     dict_of_data = {}
     arrs_to_analyze = []
     for f in files:
-        id = cc.get_id(f)  # get mouse fD from path
+        id = cc.get_id(f)  # get mouse id from path
         label = ((os.path.basename(f).split("."))[0]).split("_")[-1]  #  get label of data - this extracts the last string from guppy output file
         k = str(label)  #  create key value name from id and label
         v = cc.read_hdf5(f,'data')  #  read HDF5 file and make it an array (dict value)
@@ -42,7 +49,6 @@ for files in data_list:
 
 
 print("Data extracted and saved")
-
 print('collecting data to cross correlate')
 files_to_analyze = glob.glob(f'{path_to_folders}\\**\\{new_folder}\\*.h5')
 print('files collected')
@@ -99,4 +105,3 @@ df_grp = (
 df_grp.to_hdf(f'{path_to_folders}\\cross_correlation_analysis_compiled_.h5', key='df', mode='w')
 
 print(f'data compiled and saved in {path_to_folders}')
-#%%
